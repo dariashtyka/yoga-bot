@@ -2,8 +2,6 @@ import csv
 import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes, ConversationHandler, CallbackQueryHandler
-# Отримаємо JSON з env
-creds_json = os.getenv("GOOGLE_CREDS_JSON")
 
 
 # Стадії для тесту

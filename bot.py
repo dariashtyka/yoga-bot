@@ -30,7 +30,7 @@ async def test_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text(
-        "1. «Йога не спрацює для тих, у кого немає розтяжки?»",
+        "1. Йога не спрацює для тих, у кого немає розтяжки?",
         reply_markup=reply_markup
     )
     return Q1
@@ -87,6 +87,7 @@ async def test_end(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # Перевірка відповідей (приклад)
     correct_answers = {'q1': 'Ni', 'q2': 'Ni', 'q3': 'Ni', 'q4': 'Ni'}
+    correct_answers_print = {'q1': 'Ні', 'q2': 'Ні', 'q3': 'Ні', 'q4': 'Ні'}
     explanations={  'q1': 'Правильна відповідь: Йога спрацює навіть для тих, у кого немає розтяжки. Амплітуда форми не важлива ! '
                         'Важливий рух і робота з увагою, диханням, тілом в ДАНИЙ момент у тій амплітуді, яку зараз маємо. Саме це і дає ефект при детальній роботі.',
                     'q2': 'Правильна відповідь: Ні, поперек анатомічно не розгинаєтсья! Він може лише скруглюватись.', 
@@ -97,10 +98,10 @@ async def test_end(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_answer = context.user_data.get(q)
         explanation_text=explanations[q]
         correct = "✅" if user_answer == correct_answers[q] else "❌"
-        results.append(f"{q.upper()}: {user_answer} {correct} \n\n{explanation_text}\n\n")
+        results.append(f"{q.upper()}: {correct_answers_print[q]} {correct} \n\n{explanation_text}\n\n")
 
     await query.message.reply_text(
-        "Дякую за відповіді!\n" + "\n".join(results)
+        "Дякую за відповіді! Ось твої результати:\n\n" + "\n".join(results)
     )
     return ConversationHandler.END
 

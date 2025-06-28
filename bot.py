@@ -1,4 +1,3 @@
-import csv
 import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes, ConversationHandler, CallbackQueryHandler
@@ -15,7 +14,7 @@ TOKEN = os.getenv("TOKEN")
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "✋Привіт, вітаю в йога спільноті !\n\n" \
-        "⚪️Перевірьмо наскільки ти уважно слухав Павла та читав йога-вікі😌. Якщо ще не знайомий з Вікою, дуже рекомендую, вона прикольна.\n\n" \
+        "⚪️Перевірьмо, наскільки ти уважно слухав Павла та читав йога-вікі😌. Якщо ще не знайомий з Вікою, дуже рекомендую, вона прикольна.\n\n" \
         "⚪️Обирай свій рівень:\n"\
         "➖Простий варіант (для початківця). Напиши /test1\n"\
         "➖Середній варіант (для досвідченого). Напиши /test2\n"\
@@ -69,10 +68,10 @@ async def test_q3(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def test_q4(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-    context.user_data['q2'] = query.data.split('_')[1]
+    context.user_data['q3'] = query.data.split('_')[1]
 
     keyboard = [
-        [InlineKeyboardButton("Ні", callback_data="q3_Ni"), InlineKeyboardButton("Так", callback_data="q3_Tak")]
+        [InlineKeyboardButton("Ні", callback_data="q4_Ni"), InlineKeyboardButton("Так", callback_data="q4_Tak")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await query.message.reply_text(
@@ -84,13 +83,13 @@ async def test_q4(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def test_end(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-    context.user_data['q3'] = query.data.split('_')[1]
+    context.user_data['q4'] = query.data.split('_')[1]
 
     # Перевірка відповідей (приклад)
     correct_answers = {'q1': 'Ni', 'q2': 'Ni', 'q3': 'Ni', 'q4': 'Ni'}
     explanations={  'q1': 'Правильна відповідь: Йога спрацює навіть для тих, у кого немає розтяжки. Амплітуда форми не важлива ! '
                         'Важливий рух і робота з увагою, диханням, тілом в ДАНИЙ момент у тій амплітуді, яку зараз маємо. Саме це і дає ефект при детальній роботі.',
-                    'q2': 'Правильна відповідь: Ні, поперек анатомічно не розгинаєтсья! Він може лише скруглюватись. Переглянь сторінку на в Йога вікі.(додавати ще де шукати)', 
+                    'q2': 'Правильна відповідь: Ні, поперек анатомічно не розгинаєтсья! Він може лише скруглюватись.', 
                     'q3': 'Правильна відповідь: Ні в якому разі шавасану пропускати не можна. Кожна частина заняття важлива, а шавасана взагалі найголовніша. Без цього практика не те, що не спрацює, вона взагалі може бути шкідливою.', 
                     'q4': 'Правильна відповідь: Ні, треба їсти мінімум за 1,5-2 години, інакше їжа ще буде не перетравлена в шлунку.'}
     results = []
@@ -98,7 +97,7 @@ async def test_end(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_answer = context.user_data.get(q)
         explanation_text=explanations[q]
         correct = "✅" if user_answer == correct_answers[q] else "❌"
-        results.append(f"{q.upper()}: {user_answer} {correct} \n\n{explanation_text}")
+        results.append(f"{q.upper()}: {user_answer} {correct} \n\n{explanation_text}\n\n")
 
     await query.message.reply_text(
         "Дякую за відповіді!\n" + "\n".join(results)
@@ -114,12 +113,12 @@ if __name__ == '__main__':
 
     # Конверсаційний хендлер для тесту
     test_conv = ConversationHandler(
-        entry_points=[CommandHandler('test', test_start)],
+        entry_points=[CommandHandler('test1', test_start)],
         states={
             Q1: [CallbackQueryHandler(test_q2, pattern='^q1_')],
             Q2: [CallbackQueryHandler(test_q3, pattern='^q2_')],
             Q3: [CallbackQueryHandler(test_q4, pattern='^q3_')],
-            Q4: [CallbackQueryHandler(test_end, pattern='^q3_')],
+            Q4: [CallbackQueryHandler(test_end, pattern='^q4_')],
         },
         fallbacks=[CommandHandler('cancel', test_cancel)]
     )

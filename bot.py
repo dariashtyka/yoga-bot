@@ -83,6 +83,8 @@ async def test_q4(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return Q4
 
 async def test_q5_prompt(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    context.user_data['q4'] = query.data.split('_')[1]
     await update.callback_query.message.reply_text(
         "5. Скільки років Павлу?",
         reply_markup=ReplyKeyboardRemove()
@@ -96,8 +98,6 @@ async def test_q5(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def test_end(update: Update, context: ContextTypes.DEFAULT_TYPE):
     score=1
     query = update.message
-    # await query.answer()
-    # context.user_data['q4'] = query.data.split('_')[1]
 
     # Перевірка відповідей (приклад)
     correct_answers = {'q1': 'Ni', 'q2': 'Ni', 'q3': 'Ni', 'q4': 'Ni'}
@@ -109,6 +109,7 @@ async def test_end(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     'q4': 'Правильна відповідь: Ні, треба їсти мінімум за 1,5-2 години, інакше їжа ще буде не перетравлена в шлунку. Але якщо сильний голод, за пів години можна зробити перекус фруктом чи горішками.',
                     'q5': 'Правильна відповідь: трохи більше 18 і трохи менше 100. Але ніхто достеменно не знає.'}
     results = []
+    result_message=""
     for q in ['q1', 'q2', 'q3', 'q4']:
         user_answer = context.user_data.get(q)
         explanation_text=explanations[q]
@@ -118,10 +119,16 @@ async def test_end(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else :
             correct = "❌"
         results.append(f"{q.upper()}: {correct_answers_print[q]} {correct} \n\n{explanation_text}\n\n")
+    if score == 2:
+        result_message="2 в щоденник, маму в школу!\n"
+    elif score == 5:
+        result_message= "Ти пройшов посвячення, вітаю!\n"
+    else:
+        result_message= "Ти майже у цілі, потренуйся ще!\n"
     results.append(f"Q5: {context.user_data.get('q5')}✅\n\n{explanations['q5']}\n\n")
 
     await update.message.reply_text(
-        f"Дякую за відповіді! Ось твої результати: {score}/5"+"\n\n" + "\n".join(results)
+        "Дякую за відповіді!"+"\n"+result_message+f"Ось твої результати: {score}/5"+"\n\n" + "\n".join(results)
     )
     return ConversationHandler.END
 

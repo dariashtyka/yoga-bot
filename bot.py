@@ -32,7 +32,7 @@ async def test_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text(
-        "1. Йога не спрацює для тих, у кого немає розтяжки?",
+        "1. Йога працює лише для тих, у кого є розтяжка?",
         reply_markup=reply_markup
     )
     return Q1

@@ -37,6 +37,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # "🔘 ДИХАННЯ\n"
         # "🔘 УВАГА\n"
         # "🔘 ХАРЧУВАННЯ\n\n"
+        "\n\n"
         "▪️ Екзамен від йога-майора /examen\n"
         "▪️ Тест на культурну йога-освіченість «Продовжи фразу» /culture"
     )

@@ -6,7 +6,8 @@ from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, fil
 # Стадії для тесту
 Q1, Q2, Q3, Q4, Q5 = range(5)
 
-T1_Q1, T1_Q2, T1_Q3, T1_Q4, T1_Q5, T1_Q6, T1_Q7, T1_Q8, T1_Q9, T1_Q10=range (10)
+T1_Q1, T1_Q2, T1_Q3, T1_Q4, T1_Q5, T1_Q6, T1_Q7, T1_Q8, T1_Q9, T1_Q10 = range (10)
+C_Q1, C_Q2, C_Q3, C_Q4, C_Q5, C_Q6 = range(6)
 
 TOKEN = os.getenv("TOKEN")
 
@@ -15,15 +16,28 @@ TOKEN = os.getenv("TOKEN")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "✋ Привіт, вітаю в йога спільноті !\n\n" \
-        "⚪️ Щоб пройти посвячення і бути йога монстром, пропоную😌:\n\n" \
-        "   1. Прочитати йога-вікі та ознайомитись з усім теоретичним матеріалом.\n"\
-        "   2. Закріпити знання, пройшовши невеличкий тест.\n\n"\
-        "⚪️ Якщо ти вже познайомився з Вікою(я про йога-вікі😉), сміливо пиши /test та розпочинай !\n"\
-        # "➖Простий варіант (для початківця). Напиши /test\n"\
-        # "➖Середній варіант (для досвідченого). Напиши /test2\n"\
-        # "➖Складний варіант (для йога монстрів). Напиши /test3\n"
-        
+        "✋ Привіт, вітаю в йога спільноті!\n\n"
+        "Щоб пройти посвячення і бути йога монстром, пропоную 😌:\n\n"
+        "   1. Прочитати йога-вікі та ознайомитись з усім теоретичним матеріалом.\n"
+        "   2. Закріпити знання, пройшовши невеличкий тест.\n\n"
+        "⚪️ Якщо ти вже познайомився з Вікою (я про йога-вікі), сміливо пиши /test та розпочинай!\n\n"
+        "⚪️ Якщо ти вже пройшов посвячення, пропоную тематичні тести:\n\n"
+        "🔘 БАЗА\n"
+        "   🔗 Про форму, складність /form\n"
+        # "   ♻️ Біль — /pain\n"
+        # "   🪖 Про йогу, духовність, медитацію — /yoga\n"
+        # "   📜 Історія йоги в Україні — /history\n\n"
+        # "🔘 ТІЛО\n"
+        # "   ▪️ Тіло — основний інструмент /tilo1\n"
+        # "   ▪️ Осьове витяжіння /tilo2\n"
+        # "   ▪️ Робота з опорою /tilo3\n"
+        # "   ▪️ Центрування /tilo4\n"
+        # "   ▪️ Основні рухи торсу /tilo5\n\n"
+        # "🔘 ДИХАННЯ\n"
+        # "🔘 УВАГА\n"
+        # "🔘 ХАРЧУВАННЯ\n\n"
+        "▪️ Екзамен від йога-майора /examen\n"
+        "▪️ Тест на культурну йога-освіченість «Продовжи фразу» /culture"
     )
 
 
@@ -340,7 +354,7 @@ async def test1_end(update: Update, context: ContextTypes.DEFAULT_TYPE):
         result_message= "Ти майже у цілі, потренуйся ще!\n"
 
     await query.message.reply_text(
-         "Дякую за відповіді!"+"\n"+result_message+f"Ось твої результати: {score}/10"+"\n\n" + "\n".join(results)
+         "Дякую за відповіді!"+"\n"+result_message+f"Ось твої результати: {score}/{len(correct_answers)}"+"\n\n" + "\n".join(results)
     )
     return ConversationHandler.END
 
@@ -348,6 +362,70 @@ async def test1_end(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def test1_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Тест скасовано.")
     return ConversationHandler.END
+
+async def culture_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Тест «Продовжи фразу»\n\n" \
+    "Пишіть з маленької літери без пробілів на початку та в кінці.\n"
+    "_ вказує на кількість слів")
+    await update.message.reply_text("1. Вельмишановні _ _ _")
+    return C_Q1
+
+async def culture_q2(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data['q1']=update.message.text
+    await update.message.reply_text("2. Пташки за вікном _ ")
+    return C_Q2
+
+async def culture_q3(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data['q2']=update.message.text
+    await update.message.reply_text("3. Від серця до _")
+    return C_Q3
+
+async def culture_q4(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data['q3']=update.message.text
+    await update.message.reply_text("4. Від куприка в _")
+    return C_Q4
+
+async def culture_q5(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data['q4']=update.message.text
+    await update.message.reply_text("5. Рас рас і на _ ")
+    return C_Q5
+
+async def culture_q6(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data['q5']=update.message.text
+    await update.message.reply_text("6. Йога кава від Павла _ _ _ _ _(автор Андрій) ")
+    return C_Q6
+
+async def culture_end(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    score=0
+    context.user_data['q6']=update.message.text
+    results=[]
+    correct_answers = {'q1': 'пані та панове', 'q2': 'наспівали', 'q3': 'сонця', 'q4': 'маківку', 'q5':'матрас', 'q6':'бахнув раз і на діла' }
+    l=len(correct_answers)
+    question_beginning={'q1': 'Вельмишановні ' , 'q2': 'Пташки за вікном ', 'q3': 'Від серця до ', 'q4': 'Від куприка в ', 'q5':'Рас рас і на ', 'q6':'Йога кава від Павла ' }
+    for q in [f'q{i}' for i in range(1, l+1)]:
+        user_answer=context.user_data[q]
+        if(user_answer==correct_answers[q]):
+            score+=1
+            correct = "✅" 
+        else:
+            correct = "❌"
+        results.append(
+            f"{q.upper()}:\n"
+            f"Твоя відповідь: {question_beginning[q]}{user_answer} {correct}.\n"
+            f"Правильна відповідь: {question_beginning[q]}{correct_answers[q]}. \n"
+            # f"{explanation_text}\n\n"
+        )
+    if score == 2:
+        result_message="2 в щоденник, маму в школу!\n"
+    elif score == l:
+        result_message= "Вітаю в команді йога відмінників!\n"
+    else:
+        result_message= "Ти майже у цілі, потренуйся ще!\n"
+    await update.message.reply_text(
+        "Дякую за відповіді!"+"\n"+result_message+f"Ось твої результати: {score}/{len(correct_answers)}"+"\n\n" + "\n".join(results)
+    )
+    return ConversationHandler.END
+
 
 if __name__ == '__main__':
     app = ApplicationBuilder().token(TOKEN).build()
@@ -382,10 +460,24 @@ if __name__ == '__main__':
         },
         fallbacks=[CommandHandler('cancel', test1_cancel)]
     )
+            # Конверсаційний хендлер для тесту
+    culture_conv = ConversationHandler(
+        entry_points=[CommandHandler('culture', culture_start)],
+        states={
+            C_Q1: [MessageHandler(filters.TEXT & ~filters.COMMAND, culture_q2)],
+            C_Q2: [MessageHandler(filters.TEXT & ~filters.COMMAND, culture_q3)],
+            C_Q3: [MessageHandler(filters.TEXT & ~filters.COMMAND, culture_q4)],
+            C_Q4: [MessageHandler(filters.TEXT & ~filters.COMMAND, culture_q5)],
+            C_Q5: [MessageHandler(filters.TEXT & ~filters.COMMAND, culture_q6)],
+            C_Q6: [MessageHandler(filters.TEXT & ~filters.COMMAND, culture_end)],
+        },
+        fallbacks=[CommandHandler('cancel', test1_cancel)]
+    )
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(test_conv)
     app.add_handler(test1_conv)
+    app.add_handler(culture_conv)
 
     print("Бот запущено")
     app.run_polling()

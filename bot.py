@@ -8,6 +8,7 @@ Q1, Q2, Q3, Q4, Q5 = range(5)
 
 T1_Q1, T1_Q2, T1_Q3, T1_Q4, T1_Q5, T1_Q6, T1_Q7, T1_Q8, T1_Q9, T1_Q10 = range (10)
 C_Q1, C_Q2, C_Q3, C_Q4, C_Q5, C_Q6 = range(6)
+F_Q1, F_Q2, F_Q3, F_Q4, F_Q5, F_Q6, F_Q7, F_Q8, F_Q9, F_Q10 = range(10)
 
 TOKEN = os.getenv("TOKEN")
 
@@ -358,15 +359,15 @@ async def test1_end(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     return ConversationHandler.END
 
-
 async def test1_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Тест скасовано.")
     return ConversationHandler.END
 
+# --- Обробка тесту культура ---
 async def culture_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Тест «Продовжи фразу»\n\n" \
-    "Пишіть з маленької літери без пробілів на початку та в кінці.\n"
-    "_ вказує на кількість слів")
+    await update.message.reply_text("⚪️Тест «Продовжи фразу»\n\n" \
+    "❗️ Пишіть з маленької літери без пробілів на початку та в кінці.\n"
+    "❗️ _ вказує на кількість слів")
     await update.message.reply_text("1. Вельмишановні _ _ _")
     return C_Q1
 
@@ -426,6 +427,84 @@ async def culture_end(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     return ConversationHandler.END
 
+async def form_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Тест «Про форму»\n\n")
+    await update.message.reply_text("1. Який принцип працює у практиці гімнастиці для йогів, на відміну від сучасного підходу, щодо стану?")
+    return F_Q1
+
+async def form_q2(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data['q1'] = update.message.text
+    await update.message.reply_text("2. Який головний інструмент ми використовуємо для оптимізації роботи нашої психіки і свідомості?")
+    return F_Q2
+
+async def form_q3(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data['q2'] = update.message.text
+    await update.message.reply_text("3. Чи ми ставимо тіло як за самоціль досягнення фізичних властивостей, рельєфу?")
+    return F_Q3
+
+async def form_q4(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data['q3'] = update.message.text
+    await update.message.reply_text("4. Чи важливо в якому ми стані сідаємо на килимок?")
+    return F_Q4
+
+async def form_q5(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data['q4'] = update.message.text
+    await update.message.reply_text("5. Для чого нам розуміти всі наші данні, всі наші стани, коли сідаємо на килимок?")
+    return F_Q5
+
+async def form_q6(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data['q5'] = update.message.text
+    await update.message.reply_text("6. Що відбувається при порівнянні себе з кимось, звинуваченні себе у слабкості, малі силі?")
+    return F_Q6
+
+async def form_q7(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data['q6'] = update.message.text
+    await update.message.reply_text("7. Який принцип гімнастики йогів щодо складності?")
+    return F_Q7
+
+async def form_q8(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data['q7'] = update.message.text
+    await update.message.reply_text("8. Як треба реагувати на те, як нам під час практики?")
+    return F_Q8
+
+async def form_q9(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data['q8'] = update.message.text
+    await update.message.reply_text("9. Яку навичку ми напрацьовуємо, особливо важливу зараз в житті, а ще особливо військовим?")
+    return F_Q9
+
+async def form_q10(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data['q9'] = update.message.text
+    await update.message.reply_text("10. На що вказує те, якщо ви думаєте, що практика — це складно і ви поки не готові, вам ще рано?")
+    return F_Q10
+
+async def form_end(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data['q10']=update.message.text
+    results=[]
+    l=len(context.user_data)
+    correct_answers = {
+        'q1': 'Робота з тим станом, який зараз маємо',
+        'q2': 'Тіло',
+        'q3': 'Ні, основна наша мета це психофізична оптимізація, приведення тіла і голови в порядок, а фізичні властивості це лише бонус',
+        'q4': 'Ні, не важливо, це все матеріал для роботи на килимку',
+        'q5': 'Щоб відштовхуючись від них, практикувати так, як ми можемо і відчувати в собі ЗМІНИ після тренування',
+        'q6': 'Ми втікаємо від свого стану, від себе і там припиняється робота',
+        'q7': 'Складно має бути ЗАВЖДИ. Тільки так ми змінимо тіло і нервову систему. Якщо зрозуміло і легко — це лише підвищує самооцінку і нічого більше',
+        'q8': 'Ніяк! Просто робити так, як виходить і відслідковувати, що ми відчуваємо',
+        'q9': 'Психічна адаптивність до стресів високої інтенсивності',
+        'q10': 'Це вказує на втечу, слабку психічну адаптивність і уникання пікових стресів. Якщо цьому слідувати, то кожен стрес буде вас руйнувати і від нього вже не сховаєшся. Тому займаймося!'
+    }
+    for q in [f'q{i}' for i in range(1, l+1)]:
+        user_answer=context.user_data[q]
+        results.append(
+            f"{q.upper()}:\n"
+            f"⚪️ Твоя відповідь: {user_answer}\n"
+            f"✅ Правильна відповідь: {correct_answers[q]}\n"
+        )
+    await update.message.reply_text(
+        "Дякую за відповіді!"+"\n"+f"Ось твої результати:\n\n"+"\n".join(results)
+    )
+    return ConversationHandler.END
+
 
 if __name__ == '__main__':
     app = ApplicationBuilder().token(TOKEN).build()
@@ -474,10 +553,28 @@ if __name__ == '__main__':
         fallbacks=[CommandHandler('cancel', test1_cancel)]
     )
 
+    form_conv = ConversationHandler(
+        entry_points=[CommandHandler('form', form_start)],
+        states={
+            F_Q1: [MessageHandler(filters.TEXT & ~filters.COMMAND, form_q2)],
+            F_Q2: [MessageHandler(filters.TEXT & ~filters.COMMAND, form_q3)],
+            F_Q3: [MessageHandler(filters.TEXT & ~filters.COMMAND, form_q4)],
+            F_Q4: [MessageHandler(filters.TEXT & ~filters.COMMAND, form_q5)],
+            F_Q5: [MessageHandler(filters.TEXT & ~filters.COMMAND, form_q6)],
+            F_Q6: [MessageHandler(filters.TEXT & ~filters.COMMAND, form_q7)],
+            F_Q7: [MessageHandler(filters.TEXT & ~filters.COMMAND, form_q8)],
+            F_Q8: [MessageHandler(filters.TEXT & ~filters.COMMAND, form_q9)],
+            F_Q9: [MessageHandler(filters.TEXT & ~filters.COMMAND, form_q10)],
+            F_Q10: [MessageHandler(filters.TEXT & ~filters.COMMAND, form_end)],
+        },
+        fallbacks=[CommandHandler('cancel', test1_cancel)]
+    )
+
     app.add_handler(CommandHandler("start", start))
     app.add_handler(test_conv)
     app.add_handler(test1_conv)
     app.add_handler(culture_conv)
+    app.add_handler(form_conv)
 
     print("Бот запущено")
     app.run_polling()

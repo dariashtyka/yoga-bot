@@ -36,10 +36,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # "   ▪️ Основні рухи торсу /tilo5\n\n"
         # "🔘 ДИХАННЯ\n"
         # "🔘 УВАГА\n"
-        # "🔘 ХАРЧУВАННЯ\n\n"
-        "\n\n"
-        "▪️ Екзамен від йога-майора /examen\n"
-        "▪️ Тест на культурну йога-освіченість «Продовжи фразу» /culture"
+        # "🔘 ХАРЧУВАННЯ"
+        "\n"
+        "🔘 ІНШЕ\n"
+        "   ▪️ Екзамен від йога-майора /examen\n"
+        "   ▪️ Тест на культурну йога-освіченість /culture"
     )
 
 
@@ -413,7 +414,7 @@ async def culture_end(update: Update, context: ContextTypes.DEFAULT_TYPE):
             correct = "❌"
         results.append(
             f"{q.upper()}:\n"
-            f"Твоя відповідь: {question_beginning[q]}{user_answer} {correct}.\n"
+            f"Твоя відповідь: {question_beginning[q]}{user_answer}. {correct}\n"
             f"Правильна відповідь: {question_beginning[q]}{correct_answers[q]}. \n"
             # f"{explanation_text}\n\n"
         )
@@ -429,7 +430,8 @@ async def culture_end(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return ConversationHandler.END
 
 async def form_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Тест «Про форму»\n\n")
+    await update.message.reply_text("🗝️ Основна задача цього тесту - саморефлексія. \n" \
+                                    "🗝️ Балу в кінці не буде, але ти зможеш сам себе оцінити, звірившись з правильними відповідями")
     await update.message.reply_text("1. Який принцип працює у практиці гімнастиці для йогів, на відміну від сучасного підходу, щодо стану?")
     return F_Q1
 

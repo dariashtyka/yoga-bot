@@ -1,7 +1,32 @@
 import os
+import sqlite3
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes, ConversationHandler, CallbackQueryHandler
 
+# === Ініціалізація бази ===
+def init_db():
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+    cursor.execute("CREATE TABLE IF NOT EXISTS users (chat_id INTEGER PRIMARY KEY)")
+    conn.commit()
+    conn.close()
+
+# === Додати chat_id в базу ===
+def add_user(chat_id: int):
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+    cursor.execute("INSERT OR IGNORE INTO users (chat_id) VALUES (?)", (chat_id,))
+    conn.commit()
+    conn.close()
+
+# === Отримати всі chat_id ===
+def get_all_users():
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT chat_id FROM users")
+    users = cursor.fetchall()
+    conn.close()
+    return [user[0] for user in users]
 
 # Стадії для тесту
 Q1, Q2, Q3, Q4, Q5 = range(5)
@@ -16,6 +41,8 @@ TOKEN = os.getenv("TOKEN")
 # Зберігаємо тимчасово відповіді користувача у словнику (у context.user_data)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.effective_chat.id
+    add_user(chat_id)
     await update.message.reply_text(
         "✋ Привіт, вітаю в йога спільноті!\n\n"
         "Щоб пройти посвячення і бути йога монстром, пропоную 😌:\n\n"
@@ -508,8 +535,30 @@ async def form_end(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     return ConversationHandler.END
 
+# === Обробка /broadcast (лише для тебе, наприклад) ===
+async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.effective_user.id != 512911472:
+        await update.message.reply_text("Ця команда тільки для адміністратора.")
+        return
+    
+    text = " ".join(context.args) or "Тестове повідомлення 📨"
+
+    # замінимо символи \n на справжній перенос
+    text = text.replace("\\n", "\n")
+
+    all_users = get_all_users()
+    count = 0
+    for user_id in all_users:
+        try:
+            await context.bot.send_message(chat_id=user_id, text=text)
+            count += 1
+        except Exception as e:
+            print(f"Не вдалося надіслати {user_id}: {e}")
+    await update.message.reply_text(f"Повідомлення надіслано {count} користувачам ✅")
+
 
 if __name__ == '__main__':
+    init_db()
     app = ApplicationBuilder().token(TOKEN).build()
 
     # Конверсаційний хендлер для тесту
@@ -578,6 +627,7 @@ if __name__ == '__main__':
     app.add_handler(test1_conv)
     app.add_handler(culture_conv)
     app.add_handler(form_conv)
+    app.add_handler(CommandHandler("broadcast", broadcast))  # /broadcast Привіт всім!
 
     print("Бот запущено")
     app.run_polling()

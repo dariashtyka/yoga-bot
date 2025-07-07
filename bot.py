@@ -2,6 +2,7 @@ import os
 import sqlite3
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes, ConversationHandler, CallbackQueryHandler
+from telegram.constants import ParseMode
 
 # === Ініціалізація бази ===
 def init_db():
@@ -34,6 +35,7 @@ T1_Q1, T1_Q2, T1_Q3, T1_Q4, T1_Q5, T1_Q6, T1_Q7, T1_Q8, T1_Q9, T1_Q10 = range (1
 C_Q1, C_Q2, C_Q3, C_Q4, C_Q5, C_Q6 = range(6)
 F_Q1, F_Q2, F_Q3, F_Q4, F_Q5, F_Q6, F_Q7, F_Q8, F_Q9, F_Q10 = range(10)
 P_Q1, P_Q2, P_Q3, P_Q4, P_Q5, P_Q6, P_Q7, P_Q8, P_Q9, P_Q10, P_Q11, P_Q12 = range(12)
+T2_Q1, T2_Q2, T2_Q3, T2_Q4, T2_Q5, T2_Q6, T2_Q7, T2_Q8, T2_Q9= range(9)
 
 TOKEN = os.getenv("TOKEN")
 
@@ -53,7 +55,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "🔘 БАЗА\n"
         "   🔗 Про форму, складність /form\n"
         "   ♻️ Біль — /pain\n"
-        # "   🪖 Про йогу, духовність, медитацію — /yoga\n"
+        "   🪖 Про йогу, духовність, медитацію — /yoga\n"
         # "   📜 Історія йоги в Україні — /history\n\n"
         # "🔘 ТІЛО\n"
         # "   ▪️ Тіло — основний інструмент /tilo1\n"
@@ -687,6 +689,242 @@ async def pain_end(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     return ConversationHandler.END
 
+async def yoga_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    keyboard = [
+        [InlineKeyboardButton("A", callback_data="q1_A"), InlineKeyboardButton("Б", callback_data="q1_B"), InlineKeyboardButton("В", callback_data="q1_C")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.message.reply_text(
+        "<b>1. З якого моменту в загальному сприйнятті йога почала асоціюватись з духовною практикою, яка дуже тісно переплітається з медитацією?</b>\n\n" \
+        "А) З давніх часів як тільки йога виникла\n" \
+        "Б) Коли йога почала популяризуватись в Індії\n" \
+        "В) В минулому сторіччі коли йога з Індії потрапила в Америку і почала там популяризуватись",
+        reply_markup=reply_markup,
+        parse_mode=ParseMode.HTML
+    )
+    return T2_Q1
+
+async def yoga_q2(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    keyboard = [
+        [InlineKeyboardButton("А", callback_data="q2_A"),
+         InlineKeyboardButton("Б", callback_data="q2_B"),
+         InlineKeyboardButton("В", callback_data="q2_C")]
+    ]
+    await query.answer()
+    context.user_data['q1'] = query.data.split('_')[1]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.callback_query.message.reply_text(
+        "<b>2. Чому ті східні майстри, які до цього мали відношення, адаптували практику йоги на західний манер?</b>\n\n"
+        "А) Бо практика йогів дуже занепала і вже вже не працювала\n"
+        "Б) Бо майстри дуже добре розуміли, що саме потрібно для західних людей з їхнім темпом і ритмом життя\n"
+        "В) Бо така адаптація безпечніша і ефективніша, ніж традиційний підхід",
+        reply_markup=reply_markup,
+        parse_mode=ParseMode.HTML
+    )
+    return T2_Q2
+
+# Q3
+async def yoga_q3(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    context.user_data['q2'] = query.data.split('_')[1]
+
+    keyboard = [
+        [InlineKeyboardButton("А", callback_data="q3_A"),
+         InlineKeyboardButton("Б", callback_data="q3_B"),
+         InlineKeyboardButton("В", callback_data="q3_C")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await query.message.reply_text(
+        "<b>3. Практика гімнастики йогів це в першу чергу:</b>\n\n"
+        "А) духовний інструмент, тісно повʼязаний з індуїзмом чи буддизмом\n"
+        "Б) сухий інструмент по психофізичній адаптації, по опануванню контролю над своїм сприйняттям\n"
+        "В) інструмент, щоб зробити тіло непробивним, гарним і здоровим",
+        reply_markup=reply_markup,
+        parse_mode=ParseMode.HTML
+    )
+    return T2_Q3
+
+# Q4
+async def yoga_q4(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    context.user_data['q3'] = query.data.split('_')[1]
+
+    keyboard = [
+        [InlineKeyboardButton("А", callback_data="q4_A"),
+         InlineKeyboardButton("Б", callback_data="q4_B"),
+         InlineKeyboardButton("В", callback_data="q4_C")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await query.message.reply_text(
+        "<b>4. Через сильну популяризацію адаптованої практики в 60-х роках в Америці, початкова суть і принципи роботи йоги підмінили тим, що:</b>\n\n"
+        "А) було зручніше продавати\n"
+        "Б) було ефективніше і здоровіше для тіла\n"
+        "В) надавало більше духовного розвитку",
+        reply_markup=reply_markup,
+        parse_mode=ParseMode.HTML
+    )
+    return T2_Q4
+
+# Q5
+async def yoga_q5(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    context.user_data['q4'] = query.data.split('_')[1]
+
+    keyboard = [
+        [InlineKeyboardButton("А", callback_data="q5_A"),
+         InlineKeyboardButton("Б", callback_data="q5_B"),
+         InlineKeyboardButton("В", callback_data="q5_C")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await query.message.reply_text(
+        "<b>5. Що з цього неправда?</b>\n\n"
+        "А) Практика гімнастики йогів в Індії до сих пір використовується для підготовки індійського спецназу\n"
+        "Б) В бойових кланових лініях Китаю, Кореї і Вʼєтнаму гімнастика йогів була інструментом для швидкої підготовки тіла і психіки\n"
+        "В) Гімнастика йогів практикувалась лише релігійними особами",
+        reply_markup=reply_markup,
+        parse_mode=ParseMode.HTML
+    )
+    return T2_Q5
+
+# Q6
+async def yoga_q6(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    context.user_data['q5'] = query.data.split('_')[1]
+
+    keyboard = [
+        [InlineKeyboardButton("А", callback_data="q6_A"),
+         InlineKeyboardButton("Б", callback_data="q6_B"),
+         InlineKeyboardButton("В", callback_data="q6_C")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await query.message.reply_text(
+        "<b>6. Слово «медітато» було створене:</b>\n\n"
+        "А) майстром Патабхі Джойс з аштанга йоги\n"
+        "Б) католицьким священником Ігнатієм Лойолою\n"
+        "В) вчителем Патабхі - Крішнамачарʼя",
+        reply_markup=reply_markup,
+        parse_mode=ParseMode.HTML
+    )
+    return T2_Q6
+
+# Q7
+async def yoga_q7(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    context.user_data['q6'] = query.data.split('_')[1]
+
+    keyboard = [
+        [InlineKeyboardButton("А", callback_data="q7_A"),
+         InlineKeyboardButton("Б", callback_data="q7_B"),
+         InlineKeyboardButton("В", callback_data="q7_C")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await query.message.reply_text(
+        "<b>7. У східних традиціях було слово «медитація»?</b>\n\n"
+        "А) так\n"
+        "Б) ні\n"
+        "В) інформація досі невідома",
+        reply_markup=reply_markup,
+        parse_mode=ParseMode.HTML
+    )
+    return T2_Q7
+
+# Q8
+async def yoga_q8(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    context.user_data['q7'] = query.data.split('_')[1]
+
+    keyboard = [
+        [InlineKeyboardButton("А", callback_data="q8_A"),
+         InlineKeyboardButton("Б", callback_data="q8_B"),
+         InlineKeyboardButton("В", callback_data="q8_C")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await query.message.reply_text(
+        "<b>8. Що з цього неправда?</b>\n\n"
+        "А) В східних лініях медитація була частиною, яка давалась усім учням після декілька років тренувань хатха йогою\n"
+        "Б) «Медитація» в східних лініях називалась «раджа йога» – королівська практика, вінець йоги\n"
+        "В) Є буддійські лінії, в яких одразу практикується медитація",
+        reply_markup=reply_markup,
+        parse_mode=ParseMode.HTML
+    )
+    return T2_Q8
+
+# Q9
+async def yoga_q9(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    context.user_data['q8'] = query.data.split('_')[1]
+
+    keyboard = [
+        [InlineKeyboardButton("А", callback_data="q9_A"),
+         InlineKeyboardButton("Б", callback_data="q9_B"),
+         InlineKeyboardButton("В", callback_data="q9_C")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await query.message.reply_text(
+        "<b>9. В нашій роботі «медитація» це:</b>\n\n"
+        "А) мета\n"
+        "Б) результат\n"
+        "В) окрема практика",
+        reply_markup=reply_markup,
+        parse_mode=ParseMode.HTML
+    )
+    return T2_Q9
+
+async def yoga_end(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query=update.callback_query
+    await query.answer()
+    context.user_data['q9'] = query.data.split('_')[1]
+    l=len(context.user_data)
+    correct_answers = {
+        'q1': 'C',
+        'q2': 'B',
+        'q3': 'B',
+        'q4': 'A',
+        'q5': 'C',
+        'q6': 'B',
+        'q7': 'B',
+        'q8': 'A',
+        'q9': 'B'
+    }
+    correct_answer_ua={
+        'A':'А',
+        'B':'Б',
+        'C':'В'
+    }
+    score=0
+    results=[]
+    for q in [f'q{i}' for i in range(1, l+1)]:
+        us_ans=context.user_data[q]
+        cor_ans=correct_answers[q]
+        if us_ans==cor_ans:
+            score+=1
+            correct="✅"
+        else:
+            correct = "❌"
+        results.append(
+            f"{q.upper()}:\n"
+            f"⚪️ Твоя відповідь: {correct_answer_ua[us_ans]} {correct}\n"
+            f"☑️ Правильна відповідь: {correct_answer_ua[cor_ans]} \n"
+        )
+    if score == 2:
+        result_message="2 в щоденник, маму в школу!\n"
+    elif score == l:
+        result_message= "Вітаю в команді йога відмінників!\n"
+    else:
+        result_message= "Ти майже у цілі, потренуйся ще!\n"
+    await query.message.reply_text(
+        "Дякую за відповіді!"+"\n"+result_message+f"Ось твої результати: {score}/{l}"+"\n\n" + "\n".join(results), parse_mode="HTML"
+    )
+    return ConversationHandler.END
+
 
 # === Обробка /broadcast (лише для тебе, наприклад) ===
 async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -793,6 +1031,21 @@ if __name__ == '__main__':
         fallbacks=[CommandHandler('cancel', test1_cancel)]
     )
 
+    yoga_conv=ConversationHandler(
+        entry_points=[CommandHandler('yoga', yoga_start)],
+        states={
+            T2_Q1: [CallbackQueryHandler(yoga_q2, pattern='^q1_')],
+            T2_Q2: [CallbackQueryHandler(yoga_q3, pattern='^q2_')],
+            T2_Q3: [CallbackQueryHandler(yoga_q4, pattern='^q3_')],
+            T2_Q4: [CallbackQueryHandler(yoga_q5, pattern='^q4_')], 
+            T2_Q5: [CallbackQueryHandler(yoga_q6, pattern='^q5_')],
+            T2_Q6: [CallbackQueryHandler(yoga_q7, pattern='^q6_')],
+            T2_Q7: [CallbackQueryHandler(yoga_q8, pattern='^q7_')],
+            T2_Q8: [CallbackQueryHandler(yoga_q9, pattern='^q8_')], 
+            T2_Q9: [CallbackQueryHandler(yoga_end, pattern='^q9_')], 
+        },
+        fallbacks=[CommandHandler('cancel', test1_cancel)]
+    )
     app.add_handler(CommandHandler("start", start))
     app.add_handler(test_conv)
     app.add_handler(test1_conv)
@@ -800,6 +1053,7 @@ if __name__ == '__main__':
     app.add_handler(form_conv)
     app.add_handler(CommandHandler("broadcast", broadcast))  # /broadcast Привіт всім!
     app.add_handler(pain_conv)
+    app.add_handler(yoga_conv)
 
     print("Бот запущено")
     app.run_polling()

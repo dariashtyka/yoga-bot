@@ -3,6 +3,7 @@ import sqlite3
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes, ConversationHandler, CallbackQueryHandler
 from telegram.constants import ParseMode
+import random
 
 # === Ініціалізація бази ===
 def init_db():
@@ -36,6 +37,25 @@ C_Q1, C_Q2, C_Q3, C_Q4, C_Q5, C_Q6 = range(6)
 F_Q1, F_Q2, F_Q3, F_Q4, F_Q5, F_Q6, F_Q7, F_Q8, F_Q9, F_Q10 = range(10)
 P_Q1, P_Q2, P_Q3, P_Q4, P_Q5, P_Q6, P_Q7, P_Q8, P_Q9, P_Q10, P_Q11, P_Q12 = range(12)
 T2_Q1, T2_Q2, T2_Q3, T2_Q4, T2_Q5, T2_Q6, T2_Q7, T2_Q8, T2_Q9= range(9)
+HISTORY=["Конференція",
+        "1992 Київ",
+        "Обмін контактами",
+        "Передача Твердохлєб",
+        "Греція",
+        "Перші тренування",
+        "Данхем і Патабхі",
+        "Бум йоги"]
+HISTORY_PRINT = {
+    'Конференція': 'Андрій Лаппа бере участь у першій Московській міжнародній конференції з йоги.',
+    '1992 Київ': 'У 1992 році до Києва прибуває американець Джозеф Данхем у пошуках майстрів йогічної гімнастики. Він був учнем Анжели Фармер і Віктора ван Кутена.',
+    'Обмін контактами': 'Андрій Лаппа ділиться контактами з майстрами, які потім передає Андрію Сідерському.',
+    'Передача Твердохлєб': 'Андрій Сідерський передає контакти Олені Твердохлєб для організації зв’язку з метою навчання.',
+    'Греція': 'Олена Твердохлєб за дорученням Сідерського їде до Греції, щоб домовитися про співпрацю з Віктором ван Кутеном і Анжелою Фармер.',
+    'Перші тренування': 'Андрій Сідерський проводить перші тренування для Джозефа Данхема.',
+    'Данхем і Патабхі': 'Джозеф Данхем знаходить великого майстра Патабхі Джойса в Індії та популяризує його школу в США.',
+    'Бум йоги': 'Йога-бум охоплює світ і доходить до України.',
+}
+
 
 TOKEN = os.getenv("TOKEN")
 
@@ -56,7 +76,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "   🔗 Про форму, складність /form\n"
         "   ♻️ Біль — /pain\n"
         "   🪖 Про йогу, духовність, медитацію — /yoga\n"
-        # "   📜 Історія йоги в Україні — /history\n\n"
+        "   📜 Історія йоги в Україні — /history\n\n"
         # "🔘 ТІЛО\n"
         # "   ▪️ Тіло — основний інструмент /tilo1\n"
         # "   ▪️ Осьове витяжіння /tilo2\n"
@@ -973,6 +993,75 @@ async def yoga_end(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     return ConversationHandler.END
 
+async def start_history(update:Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data['correct_order']=HISTORY
+    shuffled=HISTORY[:]
+    random.shuffle(shuffled)
+    context.user_data['remaining']=shuffled
+    context.user_data['current_order']=[]
+    await send_message_history(update, context)
+
+async def send_message_history(update_or_query, context):
+    remaining=context.user_data['remaining']
+    current_order=context.user_data['current_order']
+    keyboard=[
+        [InlineKeyboardButton(text=statement, callback_data=f"choose_{statement}")]  for statement in context.user_data['remaining']
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    text = "🧩 Натисни на твердження у правильному порядку:\n\n"
+    statements = "<u>🟢 Залишилось:</u>\n" + "\n".join(f"<b>▪️ {s}</b>\n<i>{HISTORY_PRINT[s]}</i>\n" for s in remaining)
+    if current_order:
+        text += "<u>⚪️ Твій вибір:</u>\n" + "\n".join(f"<b>▪️ {s}</b>\n<i>{HISTORY_PRINT[s]}</i>\n" for s in current_order) + "\n\n"
+    if isinstance(update_or_query, Update):
+        await update_or_query.message.reply_text(text+statements, reply_markup=reply_markup, parse_mode="HTML")
+    else:
+        await update_or_query.edit_message_text(text+statements, reply_markup=reply_markup, parse_mode="HTML")
+
+async def handle_choice_history(update:Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+
+    current=context.user_data['current_order'].copy()
+    #save selection
+    reply = query.data.split('_')[1]
+    context.user_data['current_order'].append(reply)
+
+    #check beafore remove !!
+    if reply not in context.user_data['remaining']:
+        return
+    #remove from list of options
+    context.user_data['remaining'].remove(reply)
+
+    #if all tapped check the answer
+    l=len(HISTORY)
+
+    score=0
+    correct=[]
+    if not context.user_data['remaining']:
+        for i in range (0, l):
+            if HISTORY[i]==context.user_data['current_order'][i]:
+                score+=1
+                correct.append("✅")
+            else:
+                correct.append("❌")
+        if score == 2:
+            result_message="2 в щоденник, маму в школу!\n"
+        elif score == l:
+            result_message= "Вітаю в команді йога відмінників!\n"
+        else:
+            result_message= "Ти майже у цілі, потренуйся ще!\n"
+        await query.message.edit_text(
+            "Дякую за відповіді!" + "\n" +result_message+
+            f"Ось твій результат: {score}/{l}" + "\n\n" + 
+            f"<u>⚪️ Твій вибір:</u>\n" +
+            "\n".join(f"<b>▪️ {s}{correct[i]}</b>\n<i>{HISTORY_PRINT[s]}</i>\n" for i, s in enumerate(current)) +
+            "\n\n<u>🟢 Правильний порядок:</u>\n" +
+            "\n".join([f"<b>▪️ {s}</b>\n<i>{HISTORY_PRINT[s]}</i>\n" for s in HISTORY]),
+            parse_mode="HTML"
+        )
+    else:
+        await send_message_history(query, context)
+    
 
 # === Обробка /broadcast (лише для тебе, наприклад) ===
 async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -1043,7 +1132,6 @@ if __name__ == '__main__':
         },
         fallbacks=[CommandHandler('cancel', test1_cancel)]
     )
-
     form_conv = ConversationHandler(
         entry_points=[CommandHandler('form', form_start)],
         states={
@@ -1078,7 +1166,6 @@ if __name__ == '__main__':
         },
         fallbacks=[CommandHandler('cancel', test1_cancel)]
     )
-
     yoga_conv=ConversationHandler(
         entry_points=[CommandHandler('yoga', yoga_start)],
         states={
@@ -1094,6 +1181,7 @@ if __name__ == '__main__':
         },
         fallbacks=[CommandHandler('cancel', test1_cancel)]
     )
+    
     app.add_handler(CommandHandler("start", start))
     app.add_handler(test_conv)
     app.add_handler(test1_conv)
@@ -1102,6 +1190,8 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler("broadcast", broadcast))  # /broadcast Привіт всім!
     app.add_handler(pain_conv)
     app.add_handler(yoga_conv)
+    app.add_handler(CommandHandler("history", start_history))
+    app.add_handler(CallbackQueryHandler(handle_choice_history, pattern="^choose_"))
 
     print("Бот запущено")
     app.run_polling()

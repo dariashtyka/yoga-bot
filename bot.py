@@ -969,7 +969,7 @@ async def yoga_end(update: Update, context: ContextTypes.DEFAULT_TYPE):
     }
     score=0
     results=[]
-    for q in [f'q{i}' for i in range(1, l+1)]:
+    for q in [f'q{i}' for i in range(0, l)]:
         us_ans=context.user_data[q]
         cor_ans=correct_answers[q]
         if us_ans==cor_ans:
